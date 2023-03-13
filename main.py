@@ -3,29 +3,28 @@ import dataclasses
 import json
 import random
 import shutil
-import matplotlib
 
-matplotlib.use("Agg")
+import matplotlib
 import numpy as np
 import torch
 import torch.backends.cudnn as cudnn
 import torch.optim as optim
 import wandb
-from dpipe.io import load
-from torch.utils import data
-from curriculum import curriculum
+from classification import site_classification
 from configs import *
-from dataset.cc359_dataset import CC359Ds
-from dataset.msm_dataset import MultiSiteMri
-from model.unet import UNet2D
+from datasets.cc359_dataset import CC359Ds
+from datasets.msm_dataset import MultiSiteMri
+from dpipe.io import load
 from model.classifier import FCDiscriminator
-from utils import load_model
+from model.unet import UNet2D
 from postprocess import postprocess
 from pretrain import pretrain
-from clustering import clustering
 from pseudo_labeling import pseudo_labels_iterations
-from cotraining import cotraining
-from classification import site_classification
+from sort_ds import create_sorted_dataset
+from torch.utils import data
+
+from curriculum import curriculum
+from utils import load_model
 
 
 def get_arguments():
@@ -60,12 +59,6 @@ def get_arguments():
     parser.add_argument('--exp_name', default='')
     parser.add_argument('--msm', action='store_true')
     parser.add_argument("--mode", type=str, default='pretrain', help='pretrain or clustering_finetune')
-
-    parser.add_argument("--pp_epochs", type=int, default=1000)
-    parser.add_argument("--target_model_path", type=str, default='')
-    parser.add_argument("--pl_iterations", type=int, default=10)
-    parser.add_argument("--pl_epochs", type=int, default=100)
-    parser.add_argument('--soft', action='store_true')
 
     return parser.parse_args()
 
@@ -241,7 +234,6 @@ def prepare_for_sort(config, args):
         args.target = i
         model_path = f"/home/dsi/shaya/unsup_resres_msm2/source_{args.source}_target_{args.target}_k_12/clustering_finetune/best_model.pth"
         print(f"Running with ({args.source}, {args.target})")
-        from sort_ds import create_sorted_dataset
         create_sorted_dataset(model_path, args, config)
 
 
