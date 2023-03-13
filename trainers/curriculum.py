@@ -1,6 +1,6 @@
 
 
-from utils import load_model, get_batch, loss_calc
+from utils.utils import load_model, get_batch, loss_calc
 from model.unet import UNet2D
 import torch
 import torch.optim as optim

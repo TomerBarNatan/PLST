@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from paths import *
+from configurations.paths import *
 
 
 @dataclass

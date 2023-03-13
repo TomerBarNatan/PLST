@@ -5,7 +5,7 @@ from torch.utils import data
 from tqdm import tqdm
 import torch.nn.functional as F
 import pandas as pd
-from classification import site_classification
+from trainers.classification import site_classification
 
 def create_sorted_dataset(model_path, args, config):
     if args.algo is None:

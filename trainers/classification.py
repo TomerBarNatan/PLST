@@ -1,4 +1,4 @@
-from utils import load_model, get_batch
+from utils.utils import load_model, get_batch
 from models.classifier import FCDiscriminator
 from models.unet import UNet2D
 import torch

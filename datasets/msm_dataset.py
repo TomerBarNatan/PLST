@@ -5,12 +5,12 @@ import numpy as np
 import torch
 import torch.backends.cudnn as cudnn
 import torchvision.transforms.functional as TF
-import paths
+import configurations.paths as paths
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from tqdm import tqdm
 
-from paths import multiSiteMri_site_to_int
+from configurations.paths import multiSiteMri_site_to_int
 
 cudnn.benchmark = True
 
