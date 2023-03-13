@@ -1,11 +1,13 @@
-from datasets.cc359_dataset import CC359Ds
-from datasets.msm_dataset import MultiSiteMri
+import pandas as pd
+import torch.nn.functional as F
 from dpipe.io import load
 from torch.utils import data
 from tqdm import tqdm
-import torch.nn.functional as F
-import pandas as pd
+
+from datasets.cc359_dataset import CC359Ds
+from datasets.msm_dataset import MultiSiteMri
 from trainers.classification import site_classification
+
 
 def create_sorted_dataset(model_path, args, config):
     if args.algo is None:

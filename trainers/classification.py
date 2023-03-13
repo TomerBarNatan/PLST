@@ -1,12 +1,13 @@
-from utils.utils import load_model, get_batch
-from models.classifier import FCDiscriminator
-from models.unet import UNet2D
 import torch
+import torch.nn.functional as F
 import torch.optim as optim
-from tqdm import tqdm
 from torch import nn
 from torch.utils import data
-import torch.nn.functional as F
+from tqdm import tqdm
+
+from models.classifier import FCDiscriminator
+from models.unet import UNet2D
+from utils.utils import get_batch, load_model
 
 best_metric = -1
 low_source_metric = 1.1

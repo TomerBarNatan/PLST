@@ -3,12 +3,10 @@ import pickle
 import numpy as np
 import torch
 from dpipe.dataset.segmentation import SegmentationFromCSV
-from dpipe.dataset.wrappers import Proxy
-from dpipe.dataset.wrappers import apply, cache_methods
+from dpipe.dataset.wrappers import Proxy, apply, cache_methods
 from dpipe.im.box import get_centered_box
 from dpipe.im.patch import sample_box_center_uniformly
-from dpipe.im.shape_ops import crop_to_box
-from dpipe.im.shape_ops import zoom
+from dpipe.im.shape_ops import crop_to_box, zoom
 from tqdm import tqdm
 
 from configurations.paths import cc359_data_path, cc359_splits_dir

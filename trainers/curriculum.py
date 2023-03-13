@@ -1,17 +1,18 @@
 
 
-from utils.utils import load_model, get_batch, loss_calc
-from model.unet import UNet2D
+import json
+import math
+import os
+
+import pandas as pd
 import torch
 import torch.optim as optim
+from models.unet import UNet2D
 from tqdm import tqdm
-import wandb
-import json
-from metric_utils import get_sdice, get_dice
-import os
-import pandas as pd
-from print_seg import print_seg
-import math
+
+from utils.metric_utils import get_dice, get_sdice
+from utils.utils import get_batch, load_model, loss_calc
+
 best_metric = -1
 low_source_metric = 1.1
 
@@ -40,11 +41,9 @@ def curriculum(model_path, train_loader, target_loader, val_ds, test_ds, val_ds_
     else:
         optimizer = optim.SGD(model.parameters(), lr=1e-6)
     iterations = 50
-    epochs = 15
+    epochs = 35
     for i in tqdm(range(iterations), "iteration", position=0, leave=True):
-        if i > 20:
-            epochs = 15
-        pseudo_labeling_after_step(model, config, i, iterations, test_ds, val_ds_source, val_ds, args)
+        after_step(model, config, i, iterations, test_ds, val_ds_source, val_ds, args)
         model_path = config.exp_dir / f'latest_model.pth'
         labels_generator = UNet2D(config.n_channels, n_chans_out=config.n_chans_out)
         labels_generator = load_model(labels_generator, model_path, config.msm)
@@ -78,7 +77,7 @@ def curriculum(model_path, train_loader, target_loader, val_ds, test_ds, val_ds_
             del target_loss
         torch.save(model.state_dict(), config.exp_dir / f'latest_model.pth')
     
-    pseudo_labeling_after_step(model, config, iterations - 1, iterations, test_ds, val_ds_source, val_ds, args)
+    after_step(model, config, iterations - 1, iterations, test_ds, val_ds_source, val_ds, args)
     print("Finished Updating PL!")
 
 
@@ -143,7 +142,7 @@ def filter_batches(batch, new_batch, df, data_size, max_data):
 
 
 
-def pseudo_labeling_after_step(model, config, step_num, epochs, test_ds, val_ds_source, val_ds, args):
+def after_step(model, config, step_num, epochs, test_ds, val_ds_source, val_ds, args):
     global best_metric
     global low_source_metric
     global prev_d_score
@@ -154,7 +153,6 @@ def pseudo_labeling_after_step(model, config, step_num, epochs, test_ds, val_ds_
         else:
             dice1, sdice1 = get_sdice(model, val_ds, args.gpu, config)
             main_metric = sdice1
-        wandb.log({f'pseudo_labeling_dice/val': dice1, f'pseudo_labeling_sdice/val': sdice1}, step=step_num)
         print(f'pseudo_labeling_dice is ', dice1)
         print(f'pseudo_labeling_sdice is ', sdice1)
         print('pseudo_labeling taking snapshot ...')
@@ -187,5 +185,4 @@ def pseudo_labeling_after_step(model, config, step_num, epochs, test_ds, val_ds_
             scores[f'dice_{title}/test_best'] = dice_test_best
             scores[f'sdice_{title}/test_best'] = sdice_test_best
 
-        wandb.log(scores, step=step_num)
         json.dump(scores, open(config.exp_dir / f'scores_{title}.json', 'w'))
